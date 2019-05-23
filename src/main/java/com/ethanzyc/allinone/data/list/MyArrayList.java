@@ -1,4 +1,4 @@
-package com.ethanzyc.allinone.dataStructure.List;
+package com.ethanzyc.allinone.data.list;
 
 /**
  * 手写一个数组集合
@@ -147,38 +147,38 @@ public class MyArrayList<T> {
         }
     }
 
+    @SuppressWarnings("AlibabaRemoveCommentedCode")
     public static void main(String[] args) {
         MyArrayList<Integer> list = new MyArrayList<Integer>(6);
 
         System.out.println(list.size());
 
-        /** test1 start**/
+        /* test1 start**/
 //        list.add(1);
 //        list.add(2);
 //        list.add(3);
 //        println(list);
 //        list.add(222,10);
 //        println(list);
-        /** test1 end**/
+        /* test1 end */
 
-        /** test2 start**/
-        list.add(1);
-        System.out.println(list.get(0));
-        list.add(2);
-        list.add(3);
-        list.add(4);
-        list.add(5);
-        println(list);
-//        list.enlargeList(20);
-        println(list);
-        Integer oldVal = list.set(3, 20);
-        System.out.printf("原来的值:%d", oldVal);
-        System.out.println();
-        println(list);
-        Integer remove = list.remove(1);
-        System.out.println(remove);
-        println(list);
-        /** test2 end**/
+        /* test2 start**/
+//        list.add(1);
+//        System.out.println(list.get(0));
+//        list.add(2);
+//        list.add(3);
+//        list.add(4);
+//        list.add(5);
+//        println(list);
+//        println(list);
+//        Integer oldVal = list.set(3, 20);
+//        System.out.printf("原来的值:%d", oldVal);
+//        System.out.println();
+//        println(list);
+//        Integer remove = list.remove(1);
+//        System.out.println(remove);
+//        println(list);
+        /* test2 end**/
     }
 
     private static void println(MyArrayList list) {

@@ -1,4 +1,4 @@
-package com.ethanzyc.allinone.dataStructure.test;
+package com.ethanzyc.allinone.data.test;
 
 /**
  * @author ethan

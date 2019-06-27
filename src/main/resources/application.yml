@@ -1,7 +1,8 @@
 spring:
   data:
     mongodb:
-      uri: mongodb://localhost:27017/test
+      uri: mongodb://localhost:27017
+      database: test
   freemarker:
     cache: false #关闭模板缓存，方便测试
     settings:

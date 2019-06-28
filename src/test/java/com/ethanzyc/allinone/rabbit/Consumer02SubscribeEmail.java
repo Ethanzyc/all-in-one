@@ -9,9 +9,11 @@ import java.util.concurrent.TimeoutException;
  * @author ethan
  * @date 2019/6/27 23:30
  */
-public class Consumer01 {
+public class Consumer02SubscribeEmail {
 
-    public static final String QUEUE01 = "helloworld";
+    public static final String QUEUE_INFORM_EMAIL = "queue_inform_email";
+    public static final String QUEUE_INFORM_SMS = "queue_inform_sms";
+    public static final String EXCHANGE_FANOUT_INFORM = "exchange_fanout_inform";
 
     public static void main(String[] args) {
         // 消费者与mq建立连接
@@ -27,7 +29,26 @@ public class Consumer01 {
             connection = factory.newConnection();
             Channel channel = connection.createChannel();
 
-            channel.queueDeclare(QUEUE01, true, false, false, null);
+            channel.queueDeclare(QUEUE_INFORM_EMAIL, true, false, false, null);
+            /**
+             * String exchange, String type
+             * exchange:名称
+             * type:交换机类型，
+             *  fanout:对应rabbit的工作模式是 publish/subscribe
+             *  direct:对应rabbit的工作模式是 routing
+             *  topic: 对应rabbit的工作模式是 topics
+             *  headers: 对应rabbit的工作模式是 headers
+             */
+            channel.exchangeDeclare(EXCHANGE_FANOUT_INFORM, BuiltinExchangeType.FANOUT);
+
+            // 交换机和队列进行绑定
+            /**
+             * String queue, String exchange, String routingKey
+             * queue: 队列名称
+             * exchange: 交换机名称
+             * routingKey: 路由key，作用是交换机根据路由key的值将消息转发到指定到队列中，在发布订阅中协调为空字符串
+             */
+            channel.queueBind(QUEUE_INFORM_EMAIL, EXCHANGE_FANOUT_INFORM, "");
 
             DefaultConsumer consumer = new DefaultConsumer(channel) {
                 // 当接受到消息，此方法会被调用
@@ -54,7 +75,7 @@ public class Consumer01 {
             };
 
 
-            String basicConsume = channel.basicConsume(QUEUE01, true, consumer);
+            String basicConsume = channel.basicConsume(QUEUE_INFORM_EMAIL, true, consumer);
             System.out.println("basicConsume:" + basicConsume);
 
 

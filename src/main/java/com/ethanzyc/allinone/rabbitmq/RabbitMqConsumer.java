@@ -7,6 +7,11 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
 /**
+ * rabbitmq消费者
+ * 只要在对应的方法上加 @RabbitListener 注解
+ *
+ * 生产者代码在 com.ethanzyc.allinone.rabbit.Producer05Spring 中
+ * 配置在 com.ethanzyc.allinone.config.RabbitMqConfig 中
  * @author ethan
  * @date 2019/6/29 10:11
  */

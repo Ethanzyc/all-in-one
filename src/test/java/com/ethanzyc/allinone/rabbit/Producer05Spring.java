@@ -21,7 +21,7 @@ import java.util.concurrent.TimeoutException;
  */
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class Producer04Spring {
+public class Producer05Spring {
     @Autowired
     RabbitTemplate rabbitTemplate;
 

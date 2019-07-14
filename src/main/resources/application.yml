@@ -29,4 +29,4 @@ spring:
 #      timeBetweenEvictionRunsMillis: 60000 #配置间隔检测连接是否有效的时间（单位是毫秒）
 #      minEvictableIdleTimeMillis: 300000  #连接在连接池的最小生存时间（毫秒）
 server:
-  port: 8088 #服务端口
+  port: ${PORT:8088} #服务端口

@@ -21,4 +21,19 @@ public class URIDecode {
         }
         System.out.println(decode);
     }
+
+    @Test
+    public void stringTest() {
+        String a = "a:aa:";
+        a = a.substring(0, a.length() - 1);
+        System.out.println(a);
+    }
+
+
+    @Test
+    public void stringBuilderTest() {
+        StringBuilder s = new StringBuilder("aa");
+        s.append(123).append("bb");
+        System.out.println(s.toString());
+    }
 }

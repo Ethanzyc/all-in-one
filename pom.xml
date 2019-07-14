@@ -130,6 +130,11 @@
             <artifactId>fastdfs-client-java</artifactId>
             <version>1.27.0.0</version>
         </dependency>
+        <!--<dependency>-->
+        <!--<groupId>org.csource</groupId>-->
+        <!--<artifactId>fastdfs-client-java</artifactId>-->
+        <!--<version>1.27-SNAPSHOT</version>-->
+        <!--</dependency>-->
 
         <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-io -->
         <dependency>
@@ -154,6 +159,19 @@
             <artifactId>okhttp</artifactId>
             <version>3.12.1</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.elasticsearch</groupId>
+            <artifactId>elasticsearch</artifactId>
+            <version>7.2.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.elasticsearch.client</groupId>
+            <artifactId>elasticsearch-rest-high-level-client</artifactId>
+            <version>7.2.0</version>
+        </dependency>
+
 
     </dependencies>
 

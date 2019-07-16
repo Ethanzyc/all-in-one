@@ -1,5 +1,7 @@
 package com.ethanzyc.allinone;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeFieldType;
 import org.junit.Test;
 
 import java.text.ParseException;
@@ -58,5 +60,22 @@ public class DateFormatTest {
         }
         Date date2 = oneYearLater(date1);
         System.out.println(date2);
+    }
+
+    @Test
+    public void testWeekOfYear() {
+        Calendar calendar = Calendar.getInstance();
+        System.out.println(calendar.get(Calendar.WEEK_OF_YEAR));
+        System.out.println(calendar.get(Calendar.MONTH));
+        System.out.println(calendar.get(Calendar.YEAR));
+
+    }
+
+    @Test
+    public void testString() {
+        String dateKey = "2018";
+        int yearStr = Integer.valueOf(dateKey.substring(0, 4));
+        dateKey = String.valueOf(yearStr - 1) + dateKey.substring(4);
+        System.out.println(dateKey);
     }
 }

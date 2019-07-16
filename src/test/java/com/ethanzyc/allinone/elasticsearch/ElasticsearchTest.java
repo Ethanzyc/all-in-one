@@ -11,6 +11,8 @@ import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
@@ -20,7 +22,11 @@ import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.rest.RestStatus;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,9 +35,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author ethan
@@ -161,4 +165,254 @@ public class ElasticsearchTest {
         DocWriteResponse.Result result = deleteResponse.getResult();
         System.out.println(result);
     }
+
+    //搜索type下的全部记录
+    @Test
+    public void testSearchAll() throws IOException {
+        SearchRequest searchRequest = new SearchRequest("course");
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(QueryBuilders.matchAllQuery()); //source源字段过虑
+        searchSourceBuilder.fetchSource(new String[]{"name", "studymodel"}, new String[]{});
+        searchRequest.source(searchSourceBuilder);
+        SearchResponse searchResponse = restHighClient.search(searchRequest, RequestOptions.DEFAULT);
+        SearchHits hits = searchResponse.getHits();
+        SearchHit[] searchHits = hits.getHits();
+        for (SearchHit hit : searchHits) {
+            String index = hit.getIndex();
+            String type = hit.getType();
+            String id = hit.getId();
+            float score = hit.getScore();
+            String sourceAsString = hit.getSourceAsString();
+            Map<String, Object> sourceAsMap = hit.getSourceAsMap();
+            String name = (String) sourceAsMap.get("name");
+            String studymodel = (String) sourceAsMap.get("studymodel");
+            String description = (String) sourceAsMap.get("description");
+            System.out.println(name);
+            System.out.println(studymodel);
+            System.out.println(description);
+        }
+    }
+
+    @Test
+    public void testWithPage() throws IOException {
+        SearchRequest searchRequest = new SearchRequest("course");
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(QueryBuilders.matchAllQuery()); //分页查询，设置起始下标，从0开始
+        searchSourceBuilder.from(0);
+        //每页显示个数
+        searchSourceBuilder.size(1);
+        //source源字段过虑
+        searchSourceBuilder.fetchSource(new String[]{"name", "studymodel"}, new String[]{});
+        searchRequest.source(searchSourceBuilder);
+        SearchResponse searchResponse = restHighClient.search(searchRequest, RequestOptions.DEFAULT);
+        SearchHits hits = searchResponse.getHits();
+        SearchHit[] searchHits = hits.getHits();
+        for (SearchHit hit : searchHits) {
+            String index = hit.getIndex();
+            String type = hit.getType();
+            String id = hit.getId();
+            float score = hit.getScore();
+            String sourceAsString = hit.getSourceAsString();
+            Map<String, Object> sourceAsMap = hit.getSourceAsMap();
+            String name = (String) sourceAsMap.get("name");
+            String studymodel = (String) sourceAsMap.get("studymodel");
+            String description = (String) sourceAsMap.get("description");
+            System.out.println(name);
+            System.out.println(studymodel);
+            System.out.println(description);
+        }
+    }
+
+
+    @Test
+    public void testTermQuery() throws IOException {
+        SearchRequest searchRequest = new SearchRequest("course");
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(QueryBuilders.termQuery("name", "spring")); //source源字段过虑
+        searchSourceBuilder.fetchSource(new String[]{"name", "studymodel"}, new String[]{});
+        searchRequest.source(searchSourceBuilder);
+        SearchResponse searchResponse = restHighClient.search(searchRequest, RequestOptions.DEFAULT);
+        SearchHits hits = searchResponse.getHits();
+        SearchHit[] searchHits = hits.getHits();
+        for (SearchHit hit : searchHits) {
+            String index = hit.getIndex();
+            String type = hit.getType();
+            String id = hit.getId();
+            float score = hit.getScore();
+            String sourceAsString = hit.getSourceAsString();
+            Map<String, Object> sourceAsMap = hit.getSourceAsMap();
+            String name = (String) sourceAsMap.get("name");
+            String studymodel = (String) sourceAsMap.get("studymodel");
+            String description = (String) sourceAsMap.get("description");
+            System.out.println(name);
+            System.out.println(studymodel);
+            System.out.println(description);
+        }
+    }
+
+    @Test
+    public void testIdQuery() throws IOException {
+
+        SearchRequest searchRequest = new SearchRequest("course");
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+
+        String[] split = new String[]{"1", "2"};
+        List<String> idList = Arrays.asList(split);
+        searchSourceBuilder.query(QueryBuilders.termsQuery("_id", idList));
+
+        searchSourceBuilder.fetchSource(new String[]{"name", "studymodel"}, new String[]{});
+        searchRequest.source(searchSourceBuilder);
+        SearchResponse searchResponse = restHighClient.search(searchRequest, RequestOptions.DEFAULT);
+        SearchHits hits = searchResponse.getHits();
+        SearchHit[] searchHits = hits.getHits();
+        for (SearchHit hit : searchHits) {
+            String index = hit.getIndex();
+            String type = hit.getType();
+            String id = hit.getId();
+            float score = hit.getScore();
+            String sourceAsString = hit.getSourceAsString();
+            Map<String, Object> sourceAsMap = hit.getSourceAsMap();
+            String name = (String) sourceAsMap.get("name");
+            String studymodel = (String) sourceAsMap.get("studymodel");
+            String description = (String) sourceAsMap.get("description");
+            System.out.println(name);
+            System.out.println(studymodel);
+            System.out.println(description);
+        }
+    }
+
+    //根据关键字搜索
+    @Test
+    public void testMatchQuery() throws IOException {
+        SearchRequest searchRequest = new SearchRequest("course");
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder(); //source源字段过虑
+        searchSourceBuilder.fetchSource(new String[]{"name", "studymodel"}, new String[]{}); //匹配关键字
+//        searchSourceBuilder.query(QueryBuilders.matchQuery("description", "spring开发框架").operator(Operator.OR));
+        searchSourceBuilder.query(QueryBuilders.matchQuery("description", "spring开发框架").minimumShouldMatch("80%"));
+        searchRequest.source(searchSourceBuilder);
+        SearchResponse searchResponse = restHighClient.search(searchRequest, RequestOptions.DEFAULT);
+        SearchHits hits = searchResponse.getHits();
+        SearchHit[] searchHits = hits.getHits();
+        for (SearchHit hit : searchHits) {
+            String index = hit.getIndex();
+            String type = hit.getType();
+            String id = hit.getId();
+            float score = hit.getScore();
+            String sourceAsString = hit.getSourceAsString();
+            Map<String, Object> sourceAsMap = hit.getSourceAsMap();
+            String name = (String) sourceAsMap.get("name");
+            String studymodel = (String) sourceAsMap.get("studymodel");
+            String description = (String) sourceAsMap.get("description");
+            System.out.println(name);
+            System.out.println(studymodel);
+            System.out.println(description);
+        }
+    }
+
+    //根据关键字搜索
+    @Test
+    public void testMultiQuery() throws IOException {
+        SearchRequest searchRequest = new SearchRequest("course");
+
+        MultiMatchQueryBuilder multiMatchQueryBuilder = QueryBuilders.multiMatchQuery("spring框架", "name", "description")
+                .minimumShouldMatch("50%");
+        multiMatchQueryBuilder.field("name", 10);//提升boost
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder(); //source源字段过虑
+
+        searchSourceBuilder.query(multiMatchQueryBuilder);
+
+//        searchSourceBuilder.fetchSource(new String[]{"name", "studymodel"}, new String[]{}); //匹配关键字
+////        searchSourceBuilder.query(QueryBuilders.matchQuery("description", "spring开发框架").operator(Operator.OR));
+//        searchSourceBuilder.query(QueryBuilders.matchQuery("description", "spring开发框架").minimumShouldMatch("80%"));
+
+
+        searchRequest.source(searchSourceBuilder);
+        SearchResponse searchResponse = restHighClient.search(searchRequest, RequestOptions.DEFAULT);
+        SearchHits hits = searchResponse.getHits();
+        SearchHit[] searchHits = hits.getHits();
+        for (SearchHit hit : searchHits) {
+            String index = hit.getIndex();
+            String type = hit.getType();
+            String id = hit.getId();
+            float score = hit.getScore();
+            String sourceAsString = hit.getSourceAsString();
+            Map<String, Object> sourceAsMap = hit.getSourceAsMap();
+            String name = (String) sourceAsMap.get("name");
+            String studymodel = (String) sourceAsMap.get("studymodel");
+            String description = (String) sourceAsMap.get("description");
+            System.out.println(name);
+            System.out.println(studymodel);
+            System.out.println(description);
+        }
+    }
+
+    //BoolQuery，将搜索关键字分词，拿分词去索引库搜索
+    @Test
+    public void testBoolQuery() throws IOException {
+        //创建搜索请求对象
+        SearchRequest searchRequest = new SearchRequest("course");
+        //创建搜索源配置对象
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.fetchSource(new String[]{"name", "pic", "studymodel"}, new String[]{}); //multiQuery
+        String keyword = "spring开发框架";
+        MultiMatchQueryBuilder multiMatchQueryBuilder = QueryBuilders.multiMatchQuery("spring",
+                "name", "description")
+                .minimumShouldMatch("50%");
+        multiMatchQueryBuilder.field("name", 10);
+        //TermQuery
+        TermQueryBuilder termQueryBuilder = QueryBuilders.termQuery("studymodel", "201001");
+        //布尔查询
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        boolQueryBuilder.must(multiMatchQueryBuilder);
+        boolQueryBuilder.must(termQueryBuilder);
+        //设置布尔查询对象
+        searchSourceBuilder.query(boolQueryBuilder);
+        searchRequest.source(searchSourceBuilder);//设置搜索源配置
+        SearchResponse searchResponse = restHighClient.search(searchRequest, RequestOptions.DEFAULT);
+        SearchHits hits = searchResponse.getHits();
+        SearchHit[] searchHits = hits.getHits();
+        for (SearchHit hit : searchHits) {
+            Map<String, Object> sourceAsMap = hit.getSourceAsMap();
+            System.out.println(sourceAsMap);
+        }
+    }
+
+    //布尔查询使用过虑器
+    @Test
+    public void testFilter() throws IOException {
+        SearchRequest searchRequest = new SearchRequest("course");
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder(); //source源字段过虑
+        searchSourceBuilder.fetchSource(new String[]{"name", "studymodel", "price", "description"}, new String[]{});
+        //匹配关键字
+        MultiMatchQueryBuilder multiMatchQueryBuilder = QueryBuilders.multiMatchQuery("spring框架", "name", "description"); //设置匹配占比
+        multiMatchQueryBuilder.minimumShouldMatch("50%"); //提升另个字段的Boost值
+        multiMatchQueryBuilder.field("name", 10);
+        searchSourceBuilder.query(multiMatchQueryBuilder); //布尔查询
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        boolQueryBuilder.must(searchSourceBuilder.query());
+        //过虑
+        boolQueryBuilder.filter(QueryBuilders.termQuery("studymodel", "201001"));
+        boolQueryBuilder.filter(QueryBuilders.rangeQuery("price").gte(60).lte(100));
+
+        searchSourceBuilder.query(boolQueryBuilder);
+        searchRequest.source(searchSourceBuilder);
+        SearchResponse searchResponse = restHighClient.search(searchRequest, RequestOptions.DEFAULT);
+        SearchHits hits = searchResponse.getHits();
+        SearchHit[] searchHits = hits.getHits();
+        for (SearchHit hit : searchHits) {
+            String index = hit.getIndex();
+            String type = hit.getType();
+            String id = hit.getId();
+            float score = hit.getScore();
+            String sourceAsString = hit.getSourceAsString();
+            Map<String, Object> sourceAsMap = hit.getSourceAsMap();
+            String name = (String) sourceAsMap.get("name");
+            String studymodel = (String) sourceAsMap.get("studymodel");
+            String description = (String) sourceAsMap.get("description");
+            System.out.println(name);
+            System.out.println(studymodel);
+            System.out.println(description);
+        }
+    }
+
 }

@@ -21,12 +21,17 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
+import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -415,4 +420,94 @@ public class ElasticsearchTest {
         }
     }
 
+    // 排序
+    @Test
+    public void testSort() throws IOException {
+        SearchRequest searchRequest = new SearchRequest("course");
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder(); //source源字段过虑
+        searchSourceBuilder.fetchSource(new String[]{"name", "studymodel", "price", "description"}, new String[]{});
+        searchRequest.source(searchSourceBuilder);
+        //布尔查询
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        //过虑
+        boolQueryBuilder.filter(QueryBuilders.rangeQuery("price").gte(0).lte(100));
+        //排序
+        searchSourceBuilder.sort(new FieldSortBuilder("studymodel").order(SortOrder.DESC));
+        searchSourceBuilder.sort(new FieldSortBuilder("price").order(SortOrder.ASC));
+        SearchResponse searchResponse = restHighClient.search(searchRequest, RequestOptions.DEFAULT);
+        SearchHits hits = searchResponse.getHits();
+        SearchHit[] searchHits = hits.getHits();
+        for (SearchHit hit : searchHits) {
+            String index = hit.getIndex();
+            String type = hit.getType();
+            String id = hit.getId();
+            float score = hit.getScore();
+            String sourceAsString = hit.getSourceAsString();
+            Map<String, Object> sourceAsMap = hit.getSourceAsMap();
+            String name = (String) sourceAsMap.get("name");
+            String studymodel = (String) sourceAsMap.get("studymodel");
+            String description = (String) sourceAsMap.get("description");
+            System.out.println(name);
+            System.out.println(studymodel);
+            System.out.println(description);
+        }
+    }
+
+    @Test
+    public void testHighlight() throws IOException {
+        SearchRequest searchRequest = new SearchRequest("course");
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder(); //source源字段过虑
+        searchSourceBuilder.fetchSource(new String[]{"name", "studymodel", "price", "description"},
+                new String[]{});
+        searchRequest.source(searchSourceBuilder);
+        //匹配关键字
+        MultiMatchQueryBuilder multiMatchQueryBuilder = QueryBuilders.multiMatchQuery("开发",
+                "name", "description");
+        //
+        searchSourceBuilder.query(multiMatchQueryBuilder);
+        //布尔查询
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        boolQueryBuilder.must(searchSourceBuilder.query());
+        //过虑
+        boolQueryBuilder.filter(QueryBuilders.rangeQuery("price").gte(0).lte(100));
+        //排序
+        searchSourceBuilder.sort(new FieldSortBuilder("studymodel").order(SortOrder.DESC));
+        searchSourceBuilder.sort(new FieldSortBuilder("price").order(SortOrder.ASC)); //高亮设置
+        HighlightBuilder highlightBuilder = new HighlightBuilder();
+        highlightBuilder.preTags("<tag>");//设置前缀
+        highlightBuilder.postTags("</tag>");//设置后缀
+// 设置高亮字段
+        highlightBuilder.fields().add(new HighlightBuilder.Field("name"));
+        highlightBuilder.fields().add(new HighlightBuilder.Field("description"));
+        searchSourceBuilder.highlighter(highlightBuilder);
+        SearchResponse searchResponse = restHighClient.search(searchRequest, RequestOptions.DEFAULT);
+        SearchHits hits = searchResponse.getHits();
+        SearchHit[] searchHits = hits.getHits();
+        for (SearchHit hit : searchHits) {
+            Map<String, Object> sourceAsMap = hit.getSourceAsMap(); //名称
+            String name = (String) sourceAsMap.get("name"); //取出高亮字段内容
+            Map<String, HighlightField> highlightFields = hit.getHighlightFields();
+            if (highlightFields != null) {
+                HighlightField nameField = highlightFields.get("name");
+                if (nameField != null) {
+                    Text[] fragments = nameField.getFragments();
+                    StringBuffer stringBuffer = new StringBuffer();
+                    for (Text str : fragments) {
+                        stringBuffer.append(str.string());
+                    }
+                    name = stringBuffer.toString();
+                }
+            }
+            String index = hit.getIndex();
+            String type = hit.getType();
+            String id = hit.getId();
+            float score = hit.getScore();
+            String sourceAsString = hit.getSourceAsString();
+            String studymodel = (String) sourceAsMap.get("studymodel");
+            String description = (String) sourceAsMap.get("description");
+            System.out.println(name);
+            System.out.println(studymodel);
+            System.out.println(description);
+        }
+    }
 }

@@ -60,4 +60,7 @@ public class User implements Serializable {
     @Column(nullable = false)
     private Integer lastModifiedBy;
 
+
+    private String redisResult;
+
 }

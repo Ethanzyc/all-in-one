@@ -18,7 +18,7 @@ public class TestAopController {
     private TestAopService testAopService;
 
     @RequestMapping("test")
-    public User getUser(@RequestBody Params params) {
-        return testAopService.getUser(params);
+    public String getUser(@RequestBody Params params) {
+        return "111";
     }
 }

@@ -1,6 +1,8 @@
 package com.ethanzyc.allinone.testError.exception;
 
 import com.google.common.collect.ImmutableMap;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * @date 2019/6/24 23:44
  */
 @ControllerAdvice
+@Slf4j
 public class ExceptionCatch {
 
     // 定义map，配置异常类型所对应的错误代码
@@ -21,6 +24,7 @@ public class ExceptionCatch {
     @ExceptionHandler(CustomException.class)
     @ResponseBody
     public ResponseResult customException(CustomException customException) {
+        log.error("{}", customException);
         System.out.println("---------customException---------");
         ResultCode resultCode = customException.getResultCode();
         return new ResponseResult(resultCode);
@@ -29,6 +33,7 @@ public class ExceptionCatch {
     @ExceptionHandler(Exception.class)
     @ResponseBody
     public ResponseResult exception(Exception exception) {
+        log.error("{}", exception);
         System.out.println("---------exception---------");
 
         if (EXCEPTIONS == null) {
@@ -47,5 +52,6 @@ public class ExceptionCatch {
 
     static {
         builder.put(NullPointerException.class, CommonCode.NULL_POINT);
+        builder.put(BadCredentialsException.class, CommonCode.BAD_CREDENTIALS);
     }
 }

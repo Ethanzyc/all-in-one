@@ -30,3 +30,19 @@ spring:
 #      minEvictableIdleTimeMillis: 300000  #连接在连接池的最小生存时间（毫秒）
 server:
   port: ${PORT:8088} #服务端口
+logging:
+  level:
+    org.springframework:
+      data: DEBUG
+      security: DEBUG
+
+jwt:
+  header: Authorization
+  secret: mySecret
+  expiration: 604800
+  tokenHead: "Bearer "
+  route:
+    authentication:
+      path: auth
+      refresh: refresh
+      register: "auth/register"

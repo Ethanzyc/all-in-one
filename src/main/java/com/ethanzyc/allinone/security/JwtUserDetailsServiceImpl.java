@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 /**
@@ -20,7 +21,9 @@ public class JwtUserDetailsServiceImpl implements UserDetailsService {
 
             User user = User.builder().id("1")
                     .email("zhuy@123.ci")
-                    .password("fff")
+//                    .password("fff")
+                    .password(new BCryptPasswordEncoder().encode("fff"))
+                    // visitor 是无效的，必须ROLE_作为前缀
                     .roles(Lists.newArrayList("ROLE_admin", "visitor"))
                     .username("ethan")
                     .build();

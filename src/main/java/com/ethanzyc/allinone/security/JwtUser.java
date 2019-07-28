@@ -30,7 +30,7 @@ public class JwtUser implements UserDetails {
         this.id = id;
         this.username = username;
 //        this.password = password;
-        this.password = new BCryptPasswordEncoder().encode(password);
+        this.password = password;
         this.email = email;
         this.authorities = authorities;
 //        this.lastPasswordResetDate = lastPasswordResetDate;

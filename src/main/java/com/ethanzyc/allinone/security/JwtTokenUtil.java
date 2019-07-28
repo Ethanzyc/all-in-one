@@ -1,6 +1,7 @@
 package com.ethanzyc.allinone.security;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -8,6 +9,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.spec.SecretKeySpec;
+import javax.xml.bind.DatatypeConverter;
 import java.io.Serializable;
 import java.security.Key;
 import java.util.Date;
@@ -34,11 +37,13 @@ public class JwtTokenUtil implements Serializable {
     @Value("${jwt.expiration}")
     private String expiration;
 
-    private static Key key;
-
-    static {
-        key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    }
+    //    private static Key key;
+//
+    static final String secret = "P@ssw02dP@ssw02dP@ssw02dP@ssw02dP@ssw02dP@ssw02dP@ssw02dP@ssw02dP@ssw02dP@ssw02dP@ssw02dP@ssw02dP@ssw02dP@ssw02dP@ssw02dP@ssw02dP@ssw02dP@ssw02dP@ssw02dP@ssw02dP@ssw02dP@ssw02dP@ssw02dP@ssw02dP@ssw02d";
+//
+//    static {
+//        key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+//    }
 
     /**
      * 从数据声明生成令牌
@@ -48,9 +53,19 @@ public class JwtTokenUtil implements Serializable {
      */
     private String generateToken(Map<String, Object> claims) {
         Date expirationDate = new Date(System.currentTimeMillis() + Long.valueOf(expiration) * 1000);
-//        Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-//        return Jwts.builder().setClaims(claims).setExpiration(expirationDate).signWith(SignatureAlgorithm.HS512, secret).compact();
-        return Jwts.builder().setClaims(claims).setExpiration(expirationDate).signWith(key).compact();
+
+        // 签名算法 ，将对token进行签名
+        SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
+
+        // 通过秘钥签名JWT
+        byte[] apiKeySecretBytes = DatatypeConverter.parseBase64Binary(secret);
+        Key signingKey = new SecretKeySpec(apiKeySecretBytes, signatureAlgorithm.getJcaName());
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setExpiration(expirationDate)
+                .signWith(signingKey)
+                .compact();
     }
 
     /**
@@ -62,7 +77,7 @@ public class JwtTokenUtil implements Serializable {
     private Claims getClaimsFromToken(String token) {
         Claims claims;
         try {
-            claims = Jwts.parser().setSigningKey(key).parseClaimsJws(token).getBody();
+            claims = Jwts.parser().setSigningKey(DatatypeConverter.parseBase64Binary(secret)).parseClaimsJws(token).getBody();
         } catch (Exception e) {
             claims = null;
         }

@@ -2,7 +2,9 @@ package com.ethanzyc.allinone;
 
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,6 +20,13 @@ public class ArrayTest {
         strings[0][1] = "开始时间: 2019-8-1 08：00";
         returnMap.put("content", strings);
         System.out.println(returnMap);
+    }
+
+    @Test
+    public void testArray() {
+        List<String> list = Arrays.asList("1", "2", "3");
+        List<String> strings = list.subList(1, 3);
+        System.out.println(strings);
     }
 }
 

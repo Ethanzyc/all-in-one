@@ -246,7 +246,11 @@
         <!--<artifactId>quartz-all</artifactId>-->
         <!--<version>1.6.1</version>-->
         <!--</dependency>-->
-
+        <dependency>
+            <groupId>net.sourceforge.tess4j</groupId>
+            <artifactId>tess4j</artifactId>
+            <version>3.4.8</version>
+        </dependency>
 
     </dependencies>
 

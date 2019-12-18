@@ -9,6 +9,6 @@ import lombok.experimental.Delegate;
 public class A {
 
     A(int i) {
-        System.out.println("A construct");
+        System.out.println("Ehan construct");
     }
 }

@@ -26,6 +26,7 @@ public class Test {
                 synchronized (lock) {
                     System.out.println("i:" + finalI);
                     System.out.println("user:" + userThreadlocal);
+                    System.out.println("threadLocal:" + UserContext.USER_THREAD_LOCAL.hashCode());
                 }
             }).start();
         }
